@@ -13,5 +13,15 @@ set_sie_token(token)
 Message confirming token is set.
 }
 \description{
-Set your Banxico SIE API Token
+This function stores your token for authenticating requests to Banxico's SIE API.
+}
+\details{
+You can request a free API token from Banxico at:
+\url{https://www.banxico.org.mx/SieAPIRest/service/v1/token}
+}
+\examples{
+\dontrun{
+set_sie_token("tu_token")
+}
+
 }

@@ -27,10 +27,10 @@ set_sie_token <- function(token) {
 get_token <- function() {
   token <- getOption("siebanxico.token")
   if (is.null(token)) {
-    message("⚠️ No se encontró un token configurado.")
+    message("⚠️ No se encontoó un token configurado.")
     message("📎 Puedes tramitar uno gratis aquí:")
     message("👉 https://www.banxico.org.mx/SieAPIRest/service/v1/token")
-    stop("❌ Usa set_sie_token('TU_TOKEN') antes de hacer consultas.")
+    stop("Error: Usa set_sie_token('TU_TOKEN') antes de hacer consultas.")
   }
   token
 }

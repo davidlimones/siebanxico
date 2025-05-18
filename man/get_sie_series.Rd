@@ -2,20 +2,20 @@
 % Please edit documentation in R/series.R
 \name{get_sie_series}
 \alias{get_sie_series}
-\title{Get a time series from Banxico SIE}
+\title{Obtener una serie individual del SIE}
 \usage{
-get_sie_series(id, start = "2000-01-01", end = Sys.Date())
+get_sie_series(id, start = NULL, end = Sys.Date())
 }
 \arguments{
-\item{id}{Series ID as character.}
+\item{id}{Clave de la serie.}
 
-\item{start}{Start date (YYYY-MM-DD).}
+\item{start}{Fecha de inicio (YYYY-MM-DD). Si no se da, usa el inicio real de la serie.}
 
-\item{end}{End date (YYYY-MM-DD).}
+\item{end}{Fecha de fin (YYYY-MM-DD). Por defecto hoy.}
 }
 \value{
-A tibble with columns: fecha, valor, serie.
+Un tibble con fecha, valor y serie.
 }
 \description{
-Get a time series from Banxico SIE
+Consulta una serie del SIE, usando la fecha de inicio que aparece en el SIE como inicio de la serie.
 }

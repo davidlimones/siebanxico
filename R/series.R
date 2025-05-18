@@ -9,7 +9,7 @@ get_sie_series <- function(id, start = NULL, end = Sys.Date()) {
   check_catalogo_loaded()
 
   meta <- catalogo_series_sie %>% dplyr::filter(codigo_serie == id)
-  if (nrow(meta) == 0) stop("La serie ", id, " no existe en el catálogo del SIE.")
+  if (nrow(meta) == 0) stop("La serie ", id, " no existe en el catalogo del SIE.")
 
   start_real <- as.Date(meta$fecha_inicio)
   end_real <- as.Date(meta$fecha_fin)
@@ -43,7 +43,7 @@ get_sie_series <- function(id, start = NULL, end = Sys.Date()) {
 get_sie_series_multiple <- function(ids, start = NULL, end = Sys.Date(), pause = 60) {
   check_catalogo_loaded()
 
-  if (length(ids) == 0) stop("La lista de series está vacía.")
+  if (length(ids) == 0) stop("La lista de series esta vacía.")
 
   meta <- catalogo_series_sie %>% dplyr::filter(codigo_serie %in% ids)
   if (nrow(meta) == 0) stop("Ninguna de las series proporcionadas existe en el catálogo.")
@@ -105,6 +105,6 @@ parse_sie_response <- function(json, id) {
 #' @noRd
 check_catalogo_loaded <- function() {
   if (!exists("catalogo_series_sie", envir = asNamespace("siebanxico"))) {
-    stop("El catálogo de series no está disponible. Asegúrese de que el paquete cargó correctamente.")
+    stop("El catalogo de series no está disponible. Asegurese de que el paquete cargo correctamente.")
   }
 }

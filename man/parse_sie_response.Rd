@@ -2,18 +2,18 @@
 % Please edit documentation in R/series.R
 \name{parse_sie_response}
 \alias{parse_sie_response}
-\title{Parse a single series JSON response}
+\title{Procesar la respuesta de una serie individual}
 \usage{
 parse_sie_response(json, id)
 }
 \arguments{
-\item{json}{JSON response from SIE.}
+\item{json}{JSON crudo.}
 
-\item{id}{Series ID.}
+\item{id}{ID de la serie.}
 }
 \value{
-Tibble with fecha, valor, serie.
+Tibble ordenado.
 }
 \description{
-Parse a single series JSON response
+Procesar la respuesta de una serie individual
 }

@@ -2,20 +2,22 @@
 % Please edit documentation in R/series.R
 \name{get_sie_series_multiple}
 \alias{get_sie_series_multiple}
-\title{Get multiple time series from Banxico SIE}
+\title{Obtener múltiples series del SIE}
 \usage{
-get_sie_series_multiple(ids, start = "2000-01-01", end = Sys.Date())
+get_sie_series_multiple(ids, start = NULL, end = Sys.Date(), pause = 60)
 }
 \arguments{
-\item{ids}{Vector of series IDs.}
+\item{ids}{Vector de claves de series.}
 
-\item{start}{Start date.}
+\item{start}{Fecha de inicio. Si es NULL, usa fecha más temprana de las series.}
 
-\item{end}{End date.}
+\item{end}{Fecha de fin. Si es NULL, usa fecha más reciente de las series.}
+
+\item{pause}{Pausa entre bloques (segundos).}
 }
 \value{
-A tidy tibble with fecha, valor, serie.
+Un tibble con fecha, valor y serie.
 }
 \description{
-Get multiple time series from Banxico SIE
+Consulta un conjunto de series del SIE para los parámetros dados, se sugieren algunos en caso de no ser especificados de acuerdo con la página del SIE.
 }
