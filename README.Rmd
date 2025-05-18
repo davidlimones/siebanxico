@@ -1,0 +1,63 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# `siebanxico`: Consultar series del SIE Banxico desde R
+
+`siebanxico` es un paquete de R para descargar series económicas directamente desde el Sistema de Información Económica (SIE) del Banco de México. Está diseñado para facilitar el acceso a series públicas de forma rápida, limpia y en formato `tidy`.
+
+---
+
+###Instalación
+```{r}
+#La instalación del paquete se puede realizar desde GitHub: 
+devtools::install_github("david_limones/siebanxico")
+```
+
+## Obtener y configurar tu token
+Para usar el API del SIE necesitas un token que identifique las descargas que realizarás (es gratuito). Puedes solicitarlo aquí:
+
+https://www.banxico.org.mx/SieAPIRest/service/v1/token
+
+Es importante también que consideres que para consultar múltiples series debes esperar porque la API del SIE solo permite un número determinado de consultas.
+
+Una vez lo tengas:
+```{r}
+library(siebanxico)
+set_sie_token("token_usuario")
+```
+
+###Consulta de series
+Con este paquete se pueden realizar múltiples consultas de datos en formato serie publicadas por Banxico en el SIE. Si lo que necesitas es realizar la búsqueda de una sola, puedes utilizar: 
+
+Nota, el valor default de start es 2000-01-01.
+
+```{r}
+get_sie_series("SF43718", start="2024-01-01", end="2024-01-15")
+```
+
+El resultado de esta consulta es un tibble con: fecha y valor de la serie.
+
+Para poder buscar múltiples seres a la vez dentro de un mismo comando y sin realizar una saturación al sistema del SIE (ya está considerado el tiempo de espera que debes de tener para realizar la descarga) es mejor utilizar: 
+
+Nota: Vigila que las series que estes buscando obtener tengan la misma temporalidad (si todas son mensualizadas, anuales o diarias ve: get_sie_metadata())
+
+```{r}
+series<- c("SF43718", "SF46410", "SF46487")
+datos<-get_sie_series_multiple(series, start="2023-01-01")
+```
+
+Se han añadido dos funcionalidades para poder reconocer de mejor manera las series que tienen estos 
+
+
