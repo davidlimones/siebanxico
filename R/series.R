@@ -1,7 +1,7 @@
 #' @title Obtener una serie individual del SIE
 #' @description Consulta una serie del SIE, usando la fecha de inicio que aparece en el SIE como inicio de la serie.
 #' @param id Clave de la serie.
-#' @param start Fecha de inicio (YYYY-MM-DD). Si no se da, usa el inicio real de la serie.
+#' @param start Fecha de inicio (YYYY-MM-DD). Si no se da, usa el inicio de la serie registrado en SIE.
 #' @param end Fecha de fin (YYYY-MM-DD). Por defecto hoy.
 #' @return Un tibble con fecha, valor y serie.
 #' @export
