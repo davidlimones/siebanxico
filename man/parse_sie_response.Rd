@@ -2,18 +2,21 @@
 % Please edit documentation in R/series.R
 \name{parse_sie_response}
 \alias{parse_sie_response}
-\title{Procesar la respuesta de una serie individual}
+\title{Procesar la respuesta JSON de una serie individual}
 \usage{
 parse_sie_response(json, id)
 }
 \arguments{
-\item{json}{JSON crudo.}
+\item{json}{Cadena JSON devuelta por la API.}
 
-\item{id}{ID de la serie.}
+\item{id}{Clave de la serie (se añade como columna \code{serie}).}
 }
 \value{
-Tibble ordenado.
+Un \code{\link[tibble:tibble]{tibble}} con columnas \code{fecha}, \code{valor}
+y \code{serie}.
 }
 \description{
-Procesar la respuesta de una serie individual
+Parsea la respuesta cruda de la API del SIE y devuelve un tibble ordenado.
+Los valores \code{"N/A"} reportados por el SIE se convierten a \code{NA}
+numérico.
 }

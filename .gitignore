@@ -1,0 +1,25 @@
+# R / RStudio
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# Catálogo interno (NO distribuir — obtenido mediante scraping del SIE)
+R/sysdata.rda
+
+# Datos crudos y scripts de construcción del catálogo
+data-raw/
+
+# Archivos de construcción del paquete
+*.tar.gz
+*.zip
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Archivos de sistema Windows
+Thumbs.db
+Desktop.ini

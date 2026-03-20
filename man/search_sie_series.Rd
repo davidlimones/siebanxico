@@ -2,16 +2,32 @@
 % Please edit documentation in R/search.R
 \name{search_sie_series}
 \alias{search_sie_series}
-\title{Search for series by keyword}
+\title{Buscar series en el SIE por palabra clave}
 \usage{
 search_sie_series(keyword)
 }
 \arguments{
-\item{keyword}{Keyword to search in the SIE catalog.}
+\item{keyword}{Palabra clave para buscar (ej. \code{"tipo de cambio"},
+\code{"inflacion"}, \code{"TIIE"}).}
 }
 \value{
-A tibble with matching series.
+Un \code{\link[tibble:tibble]{tibble}} con columnas \code{id}, \code{titulo},
+\code{frecuencia}, \code{unidad} y \code{banco}. Devuelve un tibble vacío si
+no hay coincidencias.
 }
 \description{
-Search for series by keyword
+Realiza una búsqueda en la API del SIE usando una palabra clave y devuelve
+las series que coincidan con el término.
+}
+\details{
+Esta función consulta directamente la API y no requiere el catálogo interno.
+Para búsquedas locales más rápidas, usa \code{\link{buscar_en_catalogo}} o
+\code{\link{buscar_por_sector}}.
+}
+\examples{
+\dontrun{
+set_sie_token("tu_token")
+search_sie_series("tipo de cambio")
+search_sie_series("TIIE 28")
+}
 }

@@ -7,17 +7,40 @@
 get_sie_series_multiple(ids, start = NULL, end = Sys.Date(), pause = 60)
 }
 \arguments{
-\item{ids}{Vector de claves de series.}
+\item{ids}{Vector de caracteres con las claves de las series
+(ej. \code{c("SF43718", "SF46410")}).}
 
-\item{start}{Fecha de inicio. Si es NULL, usa fecha más temprana de las series.}
+\item{start}{Fecha de inicio en formato \code{"YYYY-MM-DD"}. Si es \code{NULL} y el
+catálogo está disponible, usa la fecha más temprana entre todas las series.}
 
-\item{end}{Fecha de fin. Si es NULL, usa fecha más reciente de las series.}
+\item{end}{Fecha de fin. Por defecto, la fecha de hoy.}
 
-\item{pause}{Pausa entre bloques (segundos).}
+\item{pause}{Segundos de pausa entre bloques de consulta. El valor
+predeterminado (60 s) es conservador. No se aplica pausa después del
+último bloque.}
 }
 \value{
-Un tibble con fecha, valor y serie.
+Un \code{\link[tibble:tibble]{tibble}} con columnas \code{fecha}, \code{valor} y \code{serie},
+apilando los datos de todas las series. Los valores \code{N/A} del SIE se
+convierten a \code{NA}.
 }
 \description{
-Consulta un conjunto de series del SIE para los parámetros dados, se sugieren algunos en caso de no ser especificados de acuerdo con la página del SIE.
+Consulta un conjunto de series del SIE agrupándolas en bloques de hasta 80
+(límite de la API) e introduce una pausa configurable entre bloques para
+respetar los límites de la API.
+}
+\details{
+La API del SIE permite hasta 80 series por petición. Esta función divide
+automáticamente cualquier vector más largo en bloques y espera \code{pause}
+segundos entre cada petición para evitar el error HTTP 429.
+}
+\examples{
+\dontrun{
+set_sie_token("tu_token")
+series <- c("SF43718", "SF46410", "SF60653")
+datos  <- get_sie_series_multiple(series, start = "2020-01-01", pause = 30)
+}
+}
+\seealso{
+\code{\link{get_sie_series}} para una sola serie.
 }

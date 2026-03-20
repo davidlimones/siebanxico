@@ -2,16 +2,26 @@
 % Please edit documentation in R/metadata.R
 \name{get_sie_metadata}
 \alias{get_sie_metadata}
-\title{Get metadata for a specific series}
+\title{Obtener metadatos de una serie del SIE}
 \usage{
 get_sie_metadata(id)
 }
 \arguments{
-\item{id}{Series ID.}
+\item{id}{Clave de la serie (ej. \code{"SF43718"}).}
 }
 \value{
-A list with metadata details.
+Un \code{\link[tibble:tibble]{tibble}} de una fila con columnas \code{id},
+\code{titulo}, \code{frecuencia}, \code{unidad}, \code{banco},
+\code{fecha_inicio} y \code{fecha_fin}.
 }
 \description{
-Get metadata for a specific series
+Consulta la API del SIE para obtener información descriptiva sobre una
+serie: título, frecuencia, unidad, banco fuente y rango de fechas
+disponible.
+}
+\examples{
+\dontrun{
+set_sie_token("tu_token")
+get_sie_metadata("SF43718")
+}
 }

@@ -7,15 +7,40 @@
 get_sie_series(id, start = NULL, end = Sys.Date())
 }
 \arguments{
-\item{id}{Clave de la serie.}
+\item{id}{Clave de la serie (ej. \code{"SF43718"}).}
 
-\item{start}{Fecha de inicio (YYYY-MM-DD). Si no se da, usa el inicio real de la serie.}
+\item{start}{Fecha de inicio en formato \code{"YYYY-MM-DD"}. Si es \code{NULL} y el
+catálogo está disponible, usa la fecha de inicio real de la serie.
+Si no hay catálogo, es obligatorio.}
 
-\item{end}{Fecha de fin (YYYY-MM-DD). Por defecto hoy.}
+\item{end}{Fecha de fin en formato \code{"YYYY-MM-DD"}. Por defecto, la fecha
+de hoy.}
 }
 \value{
-Un tibble con fecha, valor y serie.
+Un \code{\link[tibble:tibble]{tibble}} con tres columnas:
+\itemize{
+  \item \code{fecha}: fecha de observación (\code{Date}).
+  \item \code{valor}: valor numérico (\code{double}). Los valores \code{N/A} del SIE
+    se convierten a \code{NA}.
+  \item \code{serie}: clave de la serie (\code{character}).
+}
 }
 \description{
-Consulta una serie del SIE, usando la fecha de inicio que aparece en el SIE como inicio de la serie.
+Consulta una serie del SIE de Banxico mediante su API REST. Si el catálogo
+interno está disponible, valida fechas y sugiere el rango correcto. Si no,
+funciona igualmente con las fechas que se le pasen.
+}
+\details{
+Requiere que hayas configurado tu token con \code{\link{set_sie_token}}.
+Puedes tramitar uno gratis en
+\url{https://www.banxico.org.mx/SieAPIRest/service/v1/token}.
+}
+\examples{
+\dontrun{
+set_sie_token("tu_token")
+get_sie_series("SF43718", start = "2020-01-01", end = "2023-12-31")
+}
+}
+\seealso{
+\code{\link{get_sie_series_multiple}} para consultar varias series a la vez.
 }

@@ -2,26 +2,36 @@
 % Please edit documentation in R/token.R
 \name{set_sie_token}
 \alias{set_sie_token}
-\title{Set your Banxico SIE API Token}
+\title{Configurar el token de la API del SIE}
 \usage{
 set_sie_token(token)
 }
 \arguments{
-\item{token}{Your personal token as a character string.}
+\item{token}{Tu token personal como cadena de caracteres.}
 }
 \value{
-Message confirming token is set.
+El token, invisiblemente.
 }
 \description{
-This function stores your token for authenticating requests to Banxico's SIE API.
+Guarda tu token personal de la API del SIE de Banxico en las opciones de la
+sesión de R. Debes llamar esta función antes de cualquier consulta.
 }
 \details{
-You can request a free API token from Banxico at:
+El token se almacena en \code{options(siebanxico.token = ...)} y sólo persiste
+durante la sesión de R activa. Para evitar escribirlo cada vez, puedes
+añadirlo a tu \code{.Renviron}:
+
+\preformatted{BANXICO_TOKEN=aqui_va_tu_token}
+
+y cargarlo desde tu \code{.Rprofile}:
+
+\preformatted{siebanxico::set_sie_token(Sys.getenv("BANXICO_TOKEN"))}
+
+Puedes tramitar un token gratuito en:
 \url{https://www.banxico.org.mx/SieAPIRest/service/v1/token}
 }
 \examples{
 \dontrun{
-set_sie_token("tu_token")
+set_sie_token("aqui_va_tu_token")
 }
-
 }
