@@ -217,7 +217,7 @@ get_sie_series_multiple <- function(ids, start = NULL, end = Sys.Date(),
       fechas  <- vapply(datos, `[[`, character(1), "fecha")
       valores <- vapply(datos, `[[`, character(1), "dato")
       tibble::tibble(
-        fecha  = as.Date(fechas),
+        fecha  = as.Date(fechas, format = "%d/%m/%Y"),
         valor  = suppressWarnings(as.numeric(gsub(",", "", valores))),
         serie  = s$idSerie
       )
@@ -252,7 +252,7 @@ parse_sie_response <- function(json, id) {
   valores <- vapply(datos, `[[`, character(1), "dato")
 
   tibble::tibble(
-    fecha  = as.Date(fechas),
+    fecha  = as.Date(fechas, format = "%d/%m/%Y"),
     valor  = suppressWarnings(as.numeric(gsub(",", "", valores))),
     serie  = id
   )

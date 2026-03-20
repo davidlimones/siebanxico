@@ -5,15 +5,16 @@
 # `R/sysdata.rda`. Este archivo NO se distribuye en el repositorio público
 # para cumplir con los términos del SIE. Ver `data-raw/README.md`.
 #
-# Columnas esperadas del catálogo:
-#   - codigo_serie    : clave de la serie (ej. "SF43718")
-#   - titulo_serie    : título descriptivo
-#   - titulo_estructura: nombre de la estructura temática
-#   - sector          : sector económico
-#   - frecuencia      : frecuencia de publicación
-#   - unidad          : unidad de medida
-#   - fecha_inicio    : primera fecha disponible (character "YYYY-MM-DD")
-#   - fecha_fin       : última fecha disponible  (character "YYYY-MM-DD")
+# Columnas del catálogo (generadas por data-raw/construir_catalogo.R):
+#   - codigo_serie     : clave de la serie (ej. "SF43718")
+#   - titulo_serie     : título descriptivo de la serie
+#   - titulo_estructura: nombre de la estructura temática del SIE
+#   - sector           : alias de titulo_estructura (para búsquedas temáticas)
+#   - frecuencia       : periodicidad de publicación (ej. "Diaria", "Mensual")
+#   - tipo_cifra       : naturaleza del dato (ej. "Saldos", "Flujos")
+#   - unidad           : unidad de medida (ej. "Millones de Pesos")
+#   - fecha_inicio     : primera fecha disponible (Date)
+#   - fecha_fin        : última fecha disponible  (Date)
 # -------------------------------------------------------------------------
 
 
@@ -33,7 +34,7 @@ check_catalogo <- function() {
       "  El archivo 'R/sysdata.rda' no se distribuye en el repositorio ",
       "publico.\n",
       "  Consulta 'data-raw/README.md' para instrucciones sobre como ",
-      "construir el catalogo.",
+      "construir el catalogo con 'data-raw/construir_catalogo.R'.",
       call. = FALSE
     )
   }
@@ -44,20 +45,23 @@ check_catalogo <- function() {
 
 #' Buscar series en el catálogo interno por palabra clave
 #'
-#' Busca coincidencias en los campos `titulo_serie`, `titulo_estructura` y
-#' `sector` del catálogo interno. **Requiere el catálogo privado.**
+#' Busca coincidencias en los campos `titulo_serie` y `titulo_estructura`
+#' del catálogo interno. **Requiere el catálogo privado.**
 #'
-#' @param keyword Palabra clave (puede ser una expresión regular).
+#' @param keyword Palabra clave o expresión regular
+#'   (ej. `"tipo de cambio"`, `"TIIE"`, `"inflaci[oó]n"`).
 #' @param ignorar_mayusculas Lógico. Si es `TRUE` (por defecto), la búsqueda
-#'   no distingue mayúsculas.
+#'   no distingue mayúsculas ni minúsculas.
 #'
-#' @return Un tibble con las filas del catálogo que coincidan.
+#' @return Un tibble con las filas del catálogo que coincidan, con columnas
+#'   `codigo_serie`, `titulo_serie`, `titulo_estructura`, `frecuencia`,
+#'   `tipo_cifra`, `unidad`, `fecha_inicio` y `fecha_fin`.
 #'
 #' @examples
 #' \dontrun{
 #' buscar_en_catalogo("tipo de cambio")
 #' buscar_en_catalogo("TIIE")
-#' buscar_en_catalogo("inflacion", ignorar_mayusculas = TRUE)
+#' buscar_en_catalogo("inflaci[oó]n")
 #' }
 #'
 #' @export
@@ -68,33 +72,37 @@ buscar_en_catalogo <- function(keyword, ignorar_mayusculas = TRUE) {
   cat    <- catalogo_series_sie
 
   idx <- stringr::str_detect(cat$titulo_serie,     patron) |
-         stringr::str_detect(cat$titulo_estructura, patron) |
-         stringr::str_detect(cat$sector,            patron)
+         stringr::str_detect(cat$titulo_estructura, patron)
 
   resultado <- cat[idx, ]
 
   if (nrow(resultado) == 0) {
     message("No se encontraron series para '", keyword, "' en el catalogo.")
+  } else {
+    message(nrow(resultado), " serie(s) encontrada(s).")
   }
 
   resultado
 }
 
 
-#' Buscar series del catálogo por sector
+#' Buscar series del catálogo por estructura temática
 #'
-#' Filtra el catálogo interno por el campo `sector`. **Requiere el catálogo
-#' privado.**
+#' Filtra el catálogo interno por el campo `titulo_estructura`. Equivale a
+#' buscar por el nombre de la sección temática en el SIE
+#' (ej. "Tipos de cambio diarios", "Mercado de dinero").
+#' **Requiere el catálogo privado.**
 #'
-#' @param sector_keyword Palabra clave del sector (puede ser parcial, no
-#'   distingue mayúsculas).
+#' @param sector_keyword Palabra clave de la estructura (puede ser parcial,
+#'   no distingue mayúsculas).
 #'
-#' @return Un tibble con las series del sector indicado.
+#' @return Un tibble con las series de las estructuras que coincidan.
 #'
 #' @examples
 #' \dontrun{
 #' buscar_por_sector("tipo de cambio")
 #' buscar_por_sector("mercado de dinero")
+#' buscar_por_sector("inflacion")
 #' }
 #'
 #' @export
@@ -104,11 +112,15 @@ buscar_por_sector <- function(sector_keyword) {
   patron    <- stringr::regex(sector_keyword, ignore_case = TRUE)
   resultado <- dplyr::filter(
     catalogo_series_sie,
-    stringr::str_detect(sector, patron)
+    stringr::str_detect(titulo_estructura, patron)
   )
 
   if (nrow(resultado) == 0) {
-    message("No se encontraron series para el sector '", sector_keyword, "'.")
+    message("No se encontraron series para '", sector_keyword, "'.")
+  } else {
+    message(nrow(resultado), " serie(s) en ",
+            length(unique(resultado$titulo_estructura)),
+            " estructura(s).")
   }
 
   resultado
@@ -118,31 +130,38 @@ buscar_por_sector <- function(sector_keyword) {
 #' Obtener claves de series a partir de una estructura temática
 #'
 #' Devuelve todas las claves de series que pertenecen a una estructura del SIE.
+#' Usa [buscar_en_catalogo()] para encontrar el nombre exacto de la estructura.
 #' **Requiere el catálogo privado.**
 #'
-#' @param estructura Nombre exacto de la estructura temática (usa
-#'   [buscar_en_catalogo()] para encontrar el nombre correcto).
+#' @param estructura Nombre exacto de la estructura temática.
 #'
 #' @return Vector de caracteres con las claves de las series.
 #'
 #' @examples
 #' \dontrun{
-#' estructura_a_series("Tipo de cambio")
+#' ids   <- estructura_a_series("Tipos de cambio diarios")
+#' datos <- get_sie_series_multiple(ids)
 #' }
 #'
 #' @export
 estructura_a_series <- function(estructura) {
   check_catalogo()
-  catalogo_series_sie$codigo_serie[
+  resultado <- catalogo_series_sie$codigo_serie[
     catalogo_series_sie$titulo_estructura == estructura
   ]
+  if (length(resultado) == 0) {
+    message("No se encontro la estructura '", estructura, "' en el catalogo.")
+    message("Usa buscar_en_catalogo() para encontrar el nombre exacto.")
+  }
+  resultado
 }
 
 
 #' Ver un resumen del catálogo interno
 #'
-#' Muestra cuántas series y sectores contiene el catálogo, y devuelve
-#' invisiblemente el data frame completo. **Requiere el catálogo privado.**
+#' Muestra cuántas series y estructuras temáticas contiene el catálogo interno,
+#' y devuelve invisiblemente el data frame completo.
+#' **Requiere el catálogo privado.**
 #'
 #' @return El catálogo completo (invisiblemente).
 #'
@@ -156,8 +175,9 @@ resumen_catalogo <- function() {
   check_catalogo()
   cat <- catalogo_series_sie
   message("Catalogo SIE:")
-  message("  Series    : ", nrow(cat))
-  message("  Sectores  : ", length(unique(cat$sector)))
-  message("  Estructuras: ", length(unique(cat$titulo_estructura)))
+  message("  Series      : ", format(nrow(cat), big.mark = ","))
+  message("  Estructuras : ", length(unique(cat$titulo_estructura)))
+  message("  Periodicidades: ",
+          paste(sort(unique(cat$frecuencia)), collapse = ", "))
   invisible(cat)
 }
