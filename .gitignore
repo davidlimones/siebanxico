@@ -11,6 +11,9 @@ R/sysdata.rda
 # Datos crudos y scripts de construcción del catálogo
 data-raw/
 
+# Scripts de prueba local (pueden contener tokens)
+prueba_manual.R
+
 # Archivos de construcción del paquete
 *.tar.gz
 *.zip
