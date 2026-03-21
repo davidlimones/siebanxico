@@ -7,7 +7,9 @@
 #
 # Columnas del catálogo (generadas por data-raw/construir_catalogo.R):
 #   - codigo_serie     : clave de la serie (ej. "SF43718")
-#   - titulo_serie     : título descriptivo de la serie
+#   - titulo_serie     : título original del portal SIE
+#   - titulo_completo  : título legible; combina estructura + serie cuando el
+#                        título original es ambiguo (ej. "3.1 a 3.5")
 #   - titulo_estructura: nombre de la estructura temática del SIE
 #   - sector           : alias de titulo_estructura (para búsquedas temáticas)
 #   - frecuencia       : periodicidad de publicación (ej. "Diaria", "Mensual")
@@ -71,7 +73,7 @@ buscar_en_catalogo <- function(keyword, ignorar_mayusculas = TRUE) {
   patron <- stringr::regex(keyword, ignore_case = ignorar_mayusculas)
   cat    <- catalogo_series_sie
 
-  idx <- stringr::str_detect(cat$titulo_serie,     patron) |
+  idx <- stringr::str_detect(cat$titulo_completo,   patron) |
          stringr::str_detect(cat$titulo_estructura, patron)
 
   resultado <- cat[idx, ]

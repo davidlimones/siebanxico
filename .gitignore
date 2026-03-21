@@ -8,8 +8,9 @@
 # Catálogo interno (NO distribuir — obtenido mediante scraping del SIE)
 R/sysdata.rda
 
-# Datos crudos y scripts de construcción del catálogo
-data-raw/
+# Catálogo scrapeado (datos privados — no distribuir)
+data-raw/catalogo_series_sie.csv
+data-raw/progreso/
 
 # Scripts de prueba local (pueden contener tokens)
 prueba_manual.R
