@@ -106,3 +106,28 @@ test_that("series fuera del catálogo generan advertencia", {
     "no se encontro en el catalogo"
   )
 })
+
+test_that("flujo: buscar en el catálogo y descargar las claves encontradas", {
+  skip_sin_catalogo()
+  set_sie_token("token_falso")
+  withr::defer(options(siebanxico.token = NULL))
+  pedido <- NULL
+  local_mocked_bindings(
+    GET = function(u, ...) {
+      pedido <<- as.character(u)
+      structure(list(url = "https://example.test", status_code = 200L,
+                     content = charToRaw('{"bmx":{"series":[]}}'),
+                     headers = list(`Content-Type` = "application/json")),
+                class = "response")
+    },
+    .package = "httr"
+  )
+
+  hallazgos <- suppressMessages(buscar_en_catalogo("tipos? de cambio"))
+  ids <- head(hallazgos$codigo_serie[hallazgos$frecuencia == "Diaria"], 3)
+  expect_length(ids, 3)
+
+  suppressMessages(get_sie_series_multiple(ids, start = "2024-01-01",
+                                           end = "2024-01-31", pause = 0))
+  expect_match(pedido, paste(ids, collapse = ","), fixed = TRUE)
+})

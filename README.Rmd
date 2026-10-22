@@ -55,12 +55,6 @@ series <- c("SF43718", "SF46410", "SF60653")
 datos  <- get_sie_series_multiple(series, start = "2020-01-01", pause = 30)
 ```
 
-### Búsqueda por palabra clave
-
-```{r}
-search_sie_series("tipo de cambio")
-```
-
 ### Metadatos
 
 ```{r}

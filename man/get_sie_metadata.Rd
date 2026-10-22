@@ -10,18 +10,29 @@ get_sie_metadata(id)
 \item{id}{Clave de la serie (ej. \code{"SF43718"}).}
 }
 \value{
-Un \code{\link[tibble:tibble]{tibble}} de una fila con columnas \code{id},
-\code{titulo}, \code{frecuencia}, \code{unidad}, \code{banco},
-\code{fecha_inicio} y \code{fecha_fin}.
+Un \link[tibble:tibble]{tibble} de una fila con las columnas:
+\itemize{
+\item \code{id}: clave de la serie.
+\item \code{titulo}: descripción completa.
+\item \code{frecuencia}: frecuencia de publicación.
+\item \code{unidad}: unidad de medida.
+\item \code{banco}: fuente de la serie.
+\item \code{fecha_inicio}: primera fecha disponible (\code{Date}).
+\item \code{fecha_fin}: última fecha disponible (\code{Date}).
+}
 }
 \description{
 Consulta la API del SIE para obtener información descriptiva sobre una
 serie: título, frecuencia, unidad, banco fuente y rango de fechas
 disponible.
 }
+\details{
+Requiere token configurado con \code{\link[=set_sie_token]{set_sie_token()}}.
+}
 \examples{
 \dontrun{
 set_sie_token("tu_token")
 get_sie_metadata("SF43718")
 }
+
 }

@@ -55,12 +55,25 @@ test_that("get_sie_series coincide con get_sie_series_multiple", {
   expect_equal(uno, lote)
 })
 
-test_that("get_sie_metadata e search_sie_series responden", {
+test_that("get_sie_metadata responde", {
   con_token()
   m <- get_sie_metadata(USD)
   expect_equal(m$id, USD)
 
-  s <- suppressMessages(search_sie_series("tipo de cambio"))
-  expect_gt(nrow(s), 0)
-  expect_true(all(c("id", "titulo") %in% names(s)))
+})
+
+test_that("flujo completo: buscar en el catálogo y descargar de la API", {
+  con_token()
+  skip_if_not(
+    exists("catalogo_series_sie", envir = asNamespace("siebanxico"), inherits = FALSE),
+    "Catálogo no disponible"
+  )
+  hallazgos <- suppressMessages(buscar_en_catalogo("tipos? de cambio"))
+  ids <- intersect(c(USD, EUR), hallazgos$codigo_serie)
+  expect_true(USD %in% ids)
+
+  d <- suppressMessages(get_sie_series_multiple(ids, start = "2024-01-01",
+                                                end = "2024-01-31", pause = 0))
+  expect_gt(nrow(d), 0)
+  expect_true(all(d$serie %in% ids))
 })

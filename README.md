@@ -81,19 +81,6 @@ datos <- get_sie_series_multiple(
 )
 ```
 
-### Buscar series por palabra clave
-
-```r
-# Búsqueda en la API del SIE
-resultados <- search_sie_series("tipo de cambio")
-resultados
-#> # A tibble: 20 × 5
-#>    id      titulo                     frecuencia unidad banco
-#>    <chr>   <chr>                      <chr>      <chr>  <chr>
-#>  1 SF43718 Tipo de cambio para solv…  Diaria     Pesos  Banxico
-#>  ...
-```
-
 ### Obtener metadatos de una serie
 
 ```r
@@ -146,7 +133,6 @@ get_sie_series_multiple(muchas_ids, pause = 90)
 | `get_sie_series()`           | Descarga una serie individual                               |
 | `get_sie_series_multiple()`  | Descarga múltiples series con paginación automática         |
 | `get_sie_metadata()`         | Metadatos de una serie                                      |
-| `search_sie_series()`        | Busca series por palabra clave (vía API)                    |
 | `parse_sie_response()`       | Parsea el JSON crudo de la API                              |
 | `buscar_en_catalogo()`       | Busca en el catálogo interno (requiere catálogo)            |
 | `buscar_por_sector()`        | Filtra por sector económico (requiere catálogo)             |

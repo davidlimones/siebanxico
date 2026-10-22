@@ -2,24 +2,28 @@
 % Please edit documentation in R/catalog.R
 \name{buscar_por_sector}
 \alias{buscar_por_sector}
-\title{Buscar series del catálogo por sector}
+\title{Buscar series del catálogo por estructura temática}
 \usage{
 buscar_por_sector(sector_keyword)
 }
 \arguments{
-\item{sector_keyword}{Palabra clave del sector (puede ser parcial, no
-distingue mayúsculas).}
+\item{sector_keyword}{Palabra clave de la estructura (puede ser parcial,
+no distingue mayúsculas).}
 }
 \value{
-Un tibble con las series del sector indicado.
+Un tibble con las series de las estructuras que coincidan.
 }
 \description{
-Filtra el catálogo interno por el campo \code{sector}.
+Filtra el catálogo interno por los campos \code{sector} y \code{titulo_estructura}
+(ej. "Encuestas", "Balanza de pagos", "Tipos de cambio diarios"). La
+búsqueda no distingue mayúsculas ni acentos.
 \strong{Requiere el catálogo privado.}
 }
 \examples{
 \dontrun{
 buscar_por_sector("tipo de cambio")
 buscar_por_sector("mercado de dinero")
+buscar_por_sector("inflacion")
 }
+
 }
