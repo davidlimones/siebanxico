@@ -1,5 +1,7 @@
 # Contrasta fecha_inicio/fecha_fin del catálogo con las fechas reales que
-# devuelve la API, para una muestra de series por periodicidad.
+# devuelve la API, para una muestra de series por periodicidad. El inicio debe
+# coincidir exactamente; el fin puede ser más reciente en la API (el catálogo
+# es una foto).
 # Requiere BANXICO_TOKEN y el catálogo interno.
 
 test_that("las fechas del catálogo coinciden con las de la API (muestra por periodicidad)", {
@@ -39,7 +41,12 @@ test_that("las fechas del catálogo coinciden con las de la API (muestra por per
         "%s (%s): inicio catalogo %s, API %s", s$codigo_serie, s$frecuencia,
         s$fecha_inicio, ini_api))
     }
-    if (fin_api > s$fecha_fin) {
+    # El catálogo es una foto: la API puede tener datos más nuevos, pero no
+    # debe tener menos. fecha_fin del catálogo es el cierre del periodo, y la
+    # API fecha los periodos no diarios al inicio (o a la 1ª/2ª quincena).
+    minimo <- if (s$frecuencia == "Diaria") s$fecha_fin
+              else as.Date(format(s$fecha_fin, "%Y-%m-01"))
+    if (fin_api < minimo) {
       discrepancias <- c(discrepancias, sprintf(
         "%s (%s): fin catalogo %s, API %s", s$codigo_serie, s$frecuencia,
         s$fecha_fin, fin_api))

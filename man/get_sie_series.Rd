@@ -14,10 +14,8 @@ catálogo está disponible, usa la fecha de inicio real de la serie.
 Si no hay catálogo, es obligatorio.}
 
 \item{end}{Fecha de fin en formato \code{"YYYY-MM-DD"}. Por defecto, la fecha
-de hoy. Si el catalogo interno esta desactualizado y \code{end} pide una
-fecha posterior a la ultima registrada ahi, no se recorta -- se avisa
-con un mensaje y se deja que la API del SIE devuelva lo que realmente
-tenga publicado.}
+de hoy: la API devuelve hasta el último dato publicado, sin depender de
+la fecha de fin del catálogo interno.}
 }
 \value{
 Un \link[tibble:tibble]{tibble} con tres columnas:

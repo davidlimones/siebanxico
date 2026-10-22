@@ -53,3 +53,22 @@ test_that("get_sie_series_multiple hace pausa solo entre bloques", {
   ))
   expect_equal(pausas, 2L)
 })
+
+test_that("por defecto, end es hoy y no depende de la fecha de fin del catálogo", {
+  set_sie_token("token_falso")
+  withr::defer(options(siebanxico.token = NULL))
+  url <- NULL
+  local_mocked_bindings(
+    GET = function(u, ...) { url <<- as.character(u); respuesta_falsa() },
+    .package = "httr"
+  )
+
+  expect_no_message(get_sie_series("SF43718", start = "2024-01-01"))
+  expect_match(url, paste0("/", Sys.Date(), "$"))
+
+  msgs <- testthat::capture_messages(
+    get_sie_series_multiple(c("SF43718", "SF46410"), start = "2024-01-01", pause = 0)
+  )
+  expect_false(any(grepl("posterior|desactualizado", msgs)))
+  expect_match(url, paste0("/", Sys.Date(), "$"))
+})
