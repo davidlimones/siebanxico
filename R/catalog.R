@@ -44,6 +44,27 @@ check_catalogo <- function() {
 
 
 #' @noRd
+validar_texto <- function(x, nombre) {
+  if (!is.character(x) || length(x) != 1L || is.na(x) || nchar(trimws(x)) == 0) {
+    stop("'", nombre, "' debe ser una cadena de caracteres no vacia.",
+         call. = FALSE)
+  }
+}
+
+#' @noRd
+regex_catalogo <- function(x, ignorar_mayusculas) {
+  patron <- sin_acentos(x)
+  tryCatch(
+    {
+      stringi::stri_detect_regex("", patron)
+      stringr::regex(patron, ignore_case = ignorar_mayusculas)
+    },
+    error = function(e) stop("'", x, "' no es una expresion regular valida.",
+                             call. = FALSE)
+  )
+}
+
+#' @noRd
 sin_acentos <- function(x) stringi::stri_trans_general(x, "Latin-ASCII")
 
 
@@ -73,8 +94,9 @@ sin_acentos <- function(x) stringi::stri_trans_general(x, "Latin-ASCII")
 #' @export
 buscar_en_catalogo <- function(keyword, ignorar_mayusculas = TRUE) {
   check_catalogo()
+  validar_texto(keyword, "keyword")
 
-  patron <- stringr::regex(sin_acentos(keyword), ignore_case = ignorar_mayusculas)
+  patron <- regex_catalogo(keyword, ignorar_mayusculas)
   cat    <- catalogo_series_sie
 
   idx <- stringr::str_detect(sin_acentos(cat$titulo_completo),   patron) |
@@ -114,8 +136,9 @@ buscar_en_catalogo <- function(keyword, ignorar_mayusculas = TRUE) {
 #' @export
 buscar_por_sector <- function(sector_keyword) {
   check_catalogo()
+  validar_texto(sector_keyword, "sector_keyword")
 
-  patron <- stringr::regex(sin_acentos(sector_keyword), ignore_case = TRUE)
+  patron <- regex_catalogo(sector_keyword, TRUE)
   cat    <- catalogo_series_sie
   idx    <- stringr::str_detect(sin_acentos(cat$sector), patron) |
             stringr::str_detect(sin_acentos(cat$titulo_estructura), patron)
@@ -152,6 +175,7 @@ buscar_por_sector <- function(sector_keyword) {
 #' @export
 estructura_a_series <- function(estructura) {
   check_catalogo()
+  validar_texto(estructura, "estructura")
   resultado <- catalogo_series_sie$codigo_serie[
     catalogo_series_sie$titulo_estructura == estructura
   ]

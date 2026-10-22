@@ -131,3 +131,83 @@ test_that("flujo: buscar en el catálogo y descargar las claves encontradas", {
                                            end = "2024-01-31", pause = 0))
   expect_match(pedido, paste(ids, collapse = ","), fixed = TRUE)
 })
+
+
+# Validación de entradas ---------------------------------------------------
+
+test_that("las búsquedas rechazan entradas que no son texto no vacío", {
+  skip_sin_catalogo()
+  for (mala in list("", "   ", NA_character_, NULL, 123, c("a", "b"))) {
+    expect_error(buscar_en_catalogo(mala), "cadena de caracteres no vacia")
+    expect_error(buscar_por_sector(mala), "cadena de caracteres no vacia")
+    expect_error(estructura_a_series(mala), "cadena de caracteres no vacia")
+  }
+})
+
+test_that("las búsquedas rechazan expresiones regulares inválidas", {
+  skip_sin_catalogo()
+  expect_error(buscar_en_catalogo("["), "expresion regular")
+  expect_error(buscar_por_sector("("), "expresion regular")
+})
+
+# Forma del resultado ------------------------------------------------------
+
+test_that("buscar_en_catalogo devuelve un tibble con las columnas del catálogo", {
+  skip_sin_catalogo()
+  r <- suppressMessages(buscar_en_catalogo("TIIE"))
+  expect_s3_class(r, "tbl_df")
+  expect_identical(names(r), names(siebanxico:::catalogo_series_sie))
+  expect_false(anyDuplicated(r$codigo_serie) > 0)
+})
+
+test_that("cada resultado coincide con la palabra clave en título o estructura", {
+  skip_sin_catalogo()
+  r <- suppressMessages(buscar_en_catalogo("inflacion"))
+  texto <- sin_acentos_test(paste(r$titulo_completo, r$titulo_estructura))
+  expect_true(all(grepl("inflacion", texto, ignore.case = TRUE)))
+})
+
+test_that("buscar_en_catalogo encuentra por estructura aunque el título no la mencione", {
+  skip_sin_catalogo()
+  cat <- siebanxico:::catalogo_series_sie
+  # SF43718 se titula "Fecha de determinación (FIX)": solo la estructura dice
+  # "Tipos de cambio diarios".
+  r <- suppressMessages(buscar_en_catalogo("Tipos de cambio diarios"))
+  expect_true("SF43718" %in% r$codigo_serie)
+  expect_false(grepl("tipos de cambio", cat$titulo_serie[cat$codigo_serie == "SF43718"],
+                     ignore.case = TRUE))
+})
+
+test_that("una alternación con | une los resultados de ambos términos", {
+  skip_sin_catalogo()
+  n <- function(k) nrow(suppressMessages(buscar_en_catalogo(k)))
+  a <- suppressMessages(buscar_en_catalogo("TIIE"))
+  b <- suppressMessages(buscar_en_catalogo("inflacion"))
+  ab <- suppressMessages(buscar_en_catalogo("TIIE|inflacion"))
+
+  expect_setequal(ab$codigo_serie, union(a$codigo_serie, b$codigo_serie))
+})
+
+test_that("los códigos devueltos existen en el catálogo y son únicos por serie", {
+  skip_sin_catalogo()
+  cat <- siebanxico:::catalogo_series_sie
+  r <- suppressMessages(buscar_en_catalogo("tipos? de cambio"))
+  expect_true(all(r$codigo_serie %in% cat$codigo_serie))
+  expect_equal(anyDuplicated(r$codigo_serie), 0L)
+})
+
+test_that("buscar_por_sector devuelve series de un sector real con sus columnas", {
+  skip_sin_catalogo()
+  cat <- siebanxico:::catalogo_series_sie
+  sector <- cat$sector[1]
+  r <- suppressMessages(buscar_por_sector(sector))
+  expect_s3_class(r, "tbl_df")
+  expect_true(all(c("codigo_serie", "sector", "titulo_estructura") %in% names(r)))
+  expect_true(any(r$sector == sector))
+})
+
+test_that("los mensajes informan el número de series encontradas", {
+  skip_sin_catalogo()
+  expect_message(buscar_en_catalogo("TIIE"), "serie\\(s\\) encontrada\\(s\\)")
+  expect_message(buscar_por_sector("encuestas"), "estructura\\(s\\)")
+})
