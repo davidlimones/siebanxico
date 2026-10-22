@@ -43,6 +43,10 @@ check_catalogo <- function() {
 }
 
 
+#' @noRd
+sin_acentos <- function(x) stringi::stri_trans_general(x, "Latin-ASCII")
+
+
 # Funciones exportadas ----------------------------------------------------
 
 #' Buscar series en el catálogo interno por palabra clave
@@ -70,11 +74,11 @@ check_catalogo <- function() {
 buscar_en_catalogo <- function(keyword, ignorar_mayusculas = TRUE) {
   check_catalogo()
 
-  patron <- stringr::regex(keyword, ignore_case = ignorar_mayusculas)
+  patron <- stringr::regex(sin_acentos(keyword), ignore_case = ignorar_mayusculas)
   cat    <- catalogo_series_sie
 
-  idx <- stringr::str_detect(cat$titulo_completo,   patron) |
-         stringr::str_detect(cat$titulo_estructura, patron)
+  idx <- stringr::str_detect(sin_acentos(cat$titulo_completo),   patron) |
+         stringr::str_detect(sin_acentos(cat$titulo_estructura), patron)
 
   resultado <- cat[idx, ]
 
@@ -90,9 +94,9 @@ buscar_en_catalogo <- function(keyword, ignorar_mayusculas = TRUE) {
 
 #' Buscar series del catálogo por estructura temática
 #'
-#' Filtra el catálogo interno por el campo `titulo_estructura`. Equivale a
-#' buscar por el nombre de la sección temática en el SIE
-#' (ej. "Tipos de cambio diarios", "Mercado de dinero").
+#' Filtra el catálogo interno por los campos `sector` y `titulo_estructura`
+#' (ej. "Encuestas", "Balanza de pagos", "Tipos de cambio diarios"). La
+#' búsqueda no distingue mayúsculas ni acentos.
 #' **Requiere el catálogo privado.**
 #'
 #' @param sector_keyword Palabra clave de la estructura (puede ser parcial,
@@ -111,11 +115,11 @@ buscar_en_catalogo <- function(keyword, ignorar_mayusculas = TRUE) {
 buscar_por_sector <- function(sector_keyword) {
   check_catalogo()
 
-  patron    <- stringr::regex(sector_keyword, ignore_case = TRUE)
-  resultado <- dplyr::filter(
-    catalogo_series_sie,
-    stringr::str_detect(titulo_estructura, patron)
-  )
+  patron <- stringr::regex(sin_acentos(sector_keyword), ignore_case = TRUE)
+  cat    <- catalogo_series_sie
+  idx    <- stringr::str_detect(sin_acentos(cat$sector), patron) |
+            stringr::str_detect(sin_acentos(cat$titulo_estructura), patron)
+  resultado <- cat[idx, ]
 
   if (nrow(resultado) == 0) {
     message("No se encontraron series para '", sector_keyword, "'.")

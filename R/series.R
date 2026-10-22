@@ -9,7 +9,10 @@
 #'   catálogo está disponible, usa la fecha de inicio real de la serie.
 #'   Si no hay catálogo, es obligatorio.
 #' @param end Fecha de fin en formato `"YYYY-MM-DD"`. Por defecto, la fecha
-#'   de hoy.
+#'   de hoy. Si el catalogo interno esta desactualizado y `end` pide una
+#'   fecha posterior a la ultima registrada ahi, no se recorta -- se avisa
+#'   con un mensaje y se deja que la API del SIE devuelva lo que realmente
+#'   tenga publicado.
 #'
 #' @return Un [tibble][tibble::tibble] con tres columnas:
 #'   - `fecha`: fecha de observación (`Date`).
@@ -58,9 +61,11 @@ get_sie_series <- function(id, start = NULL, end = Sys.Date()) {
              "disponible para la serie '", id, "' (", start_real, ").")
       }
       if (!is.na(end_real) && end > end_real) {
-        warning("La fecha de fin (", end, ") es posterior al ultimo dato ",
-                "disponible (", end_real, "). Se ajusta automaticamente.")
-        end <- end_real
+        message("La fecha de fin solicitada (", end, ") es posterior a la ",
+                "ultima fecha registrada en el catalogo interno (", end_real,
+                "), que puede estar desactualizado. Se consultara la API de ",
+                "todos modos; esta devolvera los datos que realmente esten ",
+                "publicados hasta hoy.")
       }
     }
   }
@@ -107,7 +112,10 @@ get_sie_series <- function(id, start = NULL, end = Sys.Date()) {
 #'   (ej. `c("SF43718", "SF46410")`).
 #' @param start Fecha de inicio en formato `"YYYY-MM-DD"`. Si es `NULL` y el
 #'   catálogo está disponible, usa la fecha más temprana entre todas las series.
-#' @param end Fecha de fin. Por defecto, la fecha de hoy.
+#' @param end Fecha de fin. Por defecto, la fecha de hoy. Si el catalogo
+#'   interno esta desactualizado y `end` pide una fecha posterior a la
+#'   ultima registrada ahi, no se recorta -- se avisa con un mensaje y se
+#'   deja que la API del SIE devuelva lo que realmente tenga publicado.
 #' @param pause Segundos de pausa entre bloques de consulta. El valor
 #'   predeterminado (60 s) es conservador; puedes reducirlo si tu token tiene
 #'   límites más amplios. No se aplica pausa después del último bloque.
@@ -160,8 +168,11 @@ get_sie_series_multiple <- function(ids, start = NULL, end = Sys.Date(),
              "disponible (", start_real, ").")
       }
       if (!is.na(end_real) && end > end_real) {
-        warning("La fecha de fin se ajusta a ", end_real, ".")
-        end <- end_real
+        message("La fecha de fin solicitada (", end, ") es posterior a la ",
+                "ultima fecha registrada en el catalogo interno (", end_real,
+                "), que puede estar desactualizado. Se consultara la API de ",
+                "todos modos; esta devolvera los datos que realmente esten ",
+                "publicados hasta hoy.")
       }
     }
   }
@@ -181,6 +192,10 @@ get_sie_series_multiple <- function(ids, start = NULL, end = Sys.Date(),
     bloque  <- bloques[[i]]
     ids_str <- paste(bloque, collapse = ",")
 
+    if (i > 1) {
+      message(glue::glue("  Pausa de {pause} s antes del siguiente bloque..."))
+      Sys.sleep(pause)
+    }
     message(glue::glue("[{i}/{n_bloques}] Consultando {length(bloque)} serie(s)..."))
 
     url <- glue::glue(
@@ -205,11 +220,6 @@ get_sie_series_multiple <- function(ids, start = NULL, end = Sys.Date(),
 
     json   <- httr::content(res, as = "text", encoding = "UTF-8")
     series <- jsonlite::fromJSON(json, simplifyVector = FALSE)$bmx$series
-
-    if (i < n_bloques) {
-      message(glue::glue("  Pausa de {pause} s antes del siguiente bloque..."))
-      Sys.sleep(pause)
-    }
 
     purrr::map_dfr(series, function(s) {
       datos <- s$datos
