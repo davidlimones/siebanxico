@@ -145,6 +145,15 @@ get_sie_series_multiple(muchas_ids, pause = 90)
 - [Portal del SIE](https://www.banxico.org.mx/SIE/)
 - [Trámite de token](https://www.banxico.org.mx/SieAPIRest/service/v1/token)
 
+## Fuente de los datos
+
+Los datos y el catálogo de series provienen del Sistema de Información
+Económica (SIE) del Banco de México, <https://www.banxico.org.mx/SieInternet/>.
+Banco de México autoriza de forma general reproducir y utilizar la información
+que publica, citando la fuente y su dirección de Internet. La información puede
+tener discrepancias con la definitiva y Banco de México no asume
+responsabilidad por el uso que terceros hagan de ella.
+
 ## Licencia
 
 MIT © David Limones. Este paquete no tiene afiliación oficial con el Banco de México.

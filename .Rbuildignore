@@ -7,3 +7,5 @@
 ^README\.Rmd$
 ^LICENSE\.md$
 ^\.DS_Store$
+^prueba_manual\.R$
+^.*\.tar\.gz$
