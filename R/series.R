@@ -9,10 +9,8 @@
 #'   catálogo está disponible, usa la fecha de inicio real de la serie.
 #'   Si no hay catálogo, es obligatorio.
 #' @param end Fecha de fin en formato `"YYYY-MM-DD"`. Por defecto, la fecha
-#'   de hoy. Si el catalogo interno esta desactualizado y `end` pide una
-#'   fecha posterior a la ultima registrada ahi, no se recorta -- se avisa
-#'   con un mensaje y se deja que la API del SIE devuelva lo que realmente
-#'   tenga publicado.
+#'   de hoy: la API devuelve hasta el último dato publicado, sin depender de
+#'   la fecha de fin del catálogo interno.
 #'
 #' @return Un [tibble][tibble::tibble] con tres columnas:
 #'   - `fecha`: fecha de observación (`Date`).
@@ -50,7 +48,6 @@ get_sie_series <- function(id, start = NULL, end = Sys.Date()) {
               "Se intentara la consulta de todos modos.")
     } else {
       start_real <- as.Date(meta$fecha_inicio)
-      end_real   <- as.Date(meta$fecha_fin)
 
       if (is.null(start)) start <- start_real
       start <- as.Date(start)
@@ -59,13 +56,6 @@ get_sie_series <- function(id, start = NULL, end = Sys.Date()) {
       if (!is.na(start_real) && start < start_real) {
         stop("La fecha de inicio (", start, ") es anterior al inicio ",
              "disponible para la serie '", id, "' (", start_real, ").")
-      }
-      if (!is.na(end_real) && end > end_real) {
-        message("La fecha de fin solicitada (", end, ") es posterior a la ",
-                "ultima fecha registrada en el catalogo interno (", end_real,
-                "), que puede estar desactualizado. Se consultara la API de ",
-                "todos modos; esta devolvera los datos que realmente esten ",
-                "publicados hasta hoy.")
       }
     }
   }
@@ -112,10 +102,9 @@ get_sie_series <- function(id, start = NULL, end = Sys.Date()) {
 #'   (ej. `c("SF43718", "SF46410")`).
 #' @param start Fecha de inicio en formato `"YYYY-MM-DD"`. Si es `NULL` y el
 #'   catálogo está disponible, usa la fecha más temprana entre todas las series.
-#' @param end Fecha de fin. Por defecto, la fecha de hoy. Si el catalogo
-#'   interno esta desactualizado y `end` pide una fecha posterior a la
-#'   ultima registrada ahi, no se recorta -- se avisa con un mensaje y se
-#'   deja que la API del SIE devuelva lo que realmente tenga publicado.
+#' @param end Fecha de fin. Por defecto, la fecha de hoy: la API devuelve hasta
+#'   el último dato publicado, sin depender de la fecha de fin del catálogo
+#'   interno.
 #' @param pause Segundos de pausa entre bloques de consulta. El valor
 #'   predeterminado (60 s) es conservador; puedes reducirlo si tu token tiene
 #'   límites más amplios. No se aplica pausa después del último bloque.
@@ -158,7 +147,6 @@ get_sie_series_multiple <- function(ids, start = NULL, end = Sys.Date(),
 
     if (nrow(meta) > 0) {
       start_real <- min(as.Date(meta$fecha_inicio), na.rm = TRUE)
-      end_real   <- max(as.Date(meta$fecha_fin),    na.rm = TRUE)
 
       if (is.null(start)) start <- start_real else start <- as.Date(start)
       end <- as.Date(end)
@@ -166,13 +154,6 @@ get_sie_series_multiple <- function(ids, start = NULL, end = Sys.Date(),
       if (!is.na(start_real) && start < start_real) {
         stop("La fecha de inicio (", start, ") es anterior a la mas temprana ",
              "disponible (", start_real, ").")
-      }
-      if (!is.na(end_real) && end > end_real) {
-        message("La fecha de fin solicitada (", end, ") es posterior a la ",
-                "ultima fecha registrada en el catalogo interno (", end_real,
-                "), que puede estar desactualizado. Se consultara la API de ",
-                "todos modos; esta devolvera los datos que realmente esten ",
-                "publicados hasta hoy.")
       }
     }
   }

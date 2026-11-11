@@ -13,10 +13,9 @@ get_sie_series_multiple(ids, start = NULL, end = Sys.Date(), pause = 60)
 \item{start}{Fecha de inicio en formato \code{"YYYY-MM-DD"}. Si es \code{NULL} y el
 catálogo está disponible, usa la fecha más temprana entre todas las series.}
 
-\item{end}{Fecha de fin. Por defecto, la fecha de hoy. Si el catalogo
-interno esta desactualizado y \code{end} pide una fecha posterior a la
-ultima registrada ahi, no se recorta -- se avisa con un mensaje y se
-deja que la API del SIE devuelva lo que realmente tenga publicado.}
+\item{end}{Fecha de fin. Por defecto, la fecha de hoy: la API devuelve hasta
+el último dato publicado, sin depender de la fecha de fin del catálogo
+interno.}
 
 \item{pause}{Segundos de pausa entre bloques de consulta. El valor
 predeterminado (60 s) es conservador; puedes reducirlo si tu token tiene
