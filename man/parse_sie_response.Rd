@@ -12,11 +12,9 @@ parse_sie_response(json, id)
 \item{id}{Clave de la serie (se añade como columna \code{serie}).}
 }
 \value{
-Un \code{\link[tibble:tibble]{tibble}} con columnas \code{fecha}, \code{valor}
-y \code{serie}.
+Un \link[tibble:tibble]{tibble} con columnas \code{fecha}, \code{valor} y \code{serie}.
 }
 \description{
 Parsea la respuesta cruda de la API del SIE y devuelve un tibble ordenado.
-Los valores \code{"N/A"} reportados por el SIE se convierten a \code{NA}
-numérico.
+Los valores \code{"N/A"} reportados por el SIE se convierten a \code{NA} numérico.
 }

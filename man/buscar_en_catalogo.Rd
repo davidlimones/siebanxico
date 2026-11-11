@@ -7,24 +7,26 @@
 buscar_en_catalogo(keyword, ignorar_mayusculas = TRUE)
 }
 \arguments{
-\item{keyword}{Palabra clave (puede ser una expresión regular).}
+\item{keyword}{Palabra clave o expresión regular
+(ej. \code{"tipo de cambio"}, \code{"TIIE"}, \code{"inflaci[oó]n"}).}
 
 \item{ignorar_mayusculas}{Lógico. Si es \code{TRUE} (por defecto), la búsqueda
-no distingue mayúsculas.}
+no distingue mayúsculas ni minúsculas.}
 }
 \value{
-Un tibble con las filas del catálogo que coincidan.
+Un tibble con las filas del catálogo que coincidan, con columnas
+\code{codigo_serie}, \code{titulo_serie}, \code{titulo_estructura}, \code{frecuencia},
+\code{tipo_cifra}, \code{unidad}, \code{fecha_inicio} y \code{fecha_fin}.
 }
 \description{
-Busca coincidencias en los campos \code{titulo_serie}, \code{titulo_estructura}
-y \code{sector} del catálogo interno. \strong{Requiere el catálogo privado.}
+Busca coincidencias en los campos \code{titulo_serie} y \code{titulo_estructura}
+del catálogo interno. \strong{Requiere el catálogo privado.}
 }
 \examples{
 \dontrun{
 buscar_en_catalogo("tipo de cambio")
 buscar_en_catalogo("TIIE")
+buscar_en_catalogo("inflaci[oó]n")
 }
-}
-\seealso{
-\code{\link{buscar_por_sector}}, \code{\link{search_sie_series}}
+
 }

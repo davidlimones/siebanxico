@@ -7,19 +7,20 @@
 estructura_a_series(estructura)
 }
 \arguments{
-\item{estructura}{Nombre exacto de la estructura temática. Usa
-\code{\link{buscar_en_catalogo}} para encontrar el nombre correcto.}
+\item{estructura}{Nombre exacto de la estructura temática.}
 }
 \value{
 Vector de caracteres con las claves de las series.
 }
 \description{
 Devuelve todas las claves de series que pertenecen a una estructura del SIE.
+Usa \code{\link[=buscar_en_catalogo]{buscar_en_catalogo()}} para encontrar el nombre exacto de la estructura.
 \strong{Requiere el catálogo privado.}
 }
 \examples{
 \dontrun{
-ids   <- estructura_a_series("Tipo de cambio")
+ids   <- estructura_a_series("Tipos de cambio diarios")
 datos <- get_sie_series_multiple(ids)
 }
+
 }

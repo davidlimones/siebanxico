@@ -13,14 +13,17 @@ get_sie_series_multiple(ids, start = NULL, end = Sys.Date(), pause = 60)
 \item{start}{Fecha de inicio en formato \code{"YYYY-MM-DD"}. Si es \code{NULL} y el
 catálogo está disponible, usa la fecha más temprana entre todas las series.}
 
-\item{end}{Fecha de fin. Por defecto, la fecha de hoy.}
+\item{end}{Fecha de fin. Por defecto, la fecha de hoy. Si el catalogo
+interno esta desactualizado y \code{end} pide una fecha posterior a la
+ultima registrada ahi, no se recorta -- se avisa con un mensaje y se
+deja que la API del SIE devuelva lo que realmente tenga publicado.}
 
 \item{pause}{Segundos de pausa entre bloques de consulta. El valor
-predeterminado (60 s) es conservador. No se aplica pausa después del
-último bloque.}
+predeterminado (60 s) es conservador; puedes reducirlo si tu token tiene
+límites más amplios. No se aplica pausa después del último bloque.}
 }
 \value{
-Un \code{\link[tibble:tibble]{tibble}} con columnas \code{fecha}, \code{valor} y \code{serie},
+Un \link[tibble:tibble]{tibble} con columnas \code{fecha}, \code{valor} y \code{serie},
 apilando los datos de todas las series. Los valores \code{N/A} del SIE se
 convierten a \code{NA}.
 }
@@ -40,7 +43,8 @@ set_sie_token("tu_token")
 series <- c("SF43718", "SF46410", "SF60653")
 datos  <- get_sie_series_multiple(series, start = "2020-01-01", pause = 30)
 }
+
 }
 \seealso{
-\code{\link{get_sie_series}} para una sola serie.
+\code{\link[=get_sie_series]{get_sie_series()}} para una sola serie.
 }

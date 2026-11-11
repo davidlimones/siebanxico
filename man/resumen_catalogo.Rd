@@ -7,14 +7,16 @@
 resumen_catalogo()
 }
 \value{
-El catálogo completo, invisiblemente.
+El catálogo completo (invisiblemente).
 }
 \description{
-Muestra cuántas series, sectores y estructuras contiene el catálogo interno.
+Muestra cuántas series y estructuras temáticas contiene el catálogo interno,
+y devuelve invisiblemente el data frame completo.
 \strong{Requiere el catálogo privado.}
 }
 \examples{
 \dontrun{
 resumen_catalogo()
 }
+
 }

@@ -14,15 +14,18 @@ catálogo está disponible, usa la fecha de inicio real de la serie.
 Si no hay catálogo, es obligatorio.}
 
 \item{end}{Fecha de fin en formato \code{"YYYY-MM-DD"}. Por defecto, la fecha
-de hoy.}
+de hoy. Si el catalogo interno esta desactualizado y \code{end} pide una
+fecha posterior a la ultima registrada ahi, no se recorta -- se avisa
+con un mensaje y se deja que la API del SIE devuelva lo que realmente
+tenga publicado.}
 }
 \value{
-Un \code{\link[tibble:tibble]{tibble}} con tres columnas:
+Un \link[tibble:tibble]{tibble} con tres columnas:
 \itemize{
-  \item \code{fecha}: fecha de observación (\code{Date}).
-  \item \code{valor}: valor numérico (\code{double}). Los valores \code{N/A} del SIE
-    se convierten a \code{NA}.
-  \item \code{serie}: clave de la serie (\code{character}).
+\item \code{fecha}: fecha de observación (\code{Date}).
+\item \code{valor}: valor numérico de la serie (\code{double}). Los valores \code{N/A}
+reportados por el SIE se convierten a \code{NA}.
+\item \code{serie}: clave de la serie (\code{character}).
 }
 }
 \description{
@@ -31,16 +34,22 @@ interno está disponible, valida fechas y sugiere el rango correcto. Si no,
 funciona igualmente con las fechas que se le pasen.
 }
 \details{
-Requiere que hayas configurado tu token con \code{\link{set_sie_token}}.
+Requiere que hayas configurado tu token con \code{\link[=set_sie_token]{set_sie_token()}}.
 Puedes tramitar uno gratis en
 \url{https://www.banxico.org.mx/SieAPIRest/service/v1/token}.
 }
 \examples{
 \dontrun{
 set_sie_token("tu_token")
+
+# Con catálogo cargado (detecta fechas automáticamente)
+get_sie_series("SF43718")
+
+# Especificando rango de fechas
 get_sie_series("SF43718", start = "2020-01-01", end = "2023-12-31")
 }
+
 }
 \seealso{
-\code{\link{get_sie_series_multiple}} para consultar varias series a la vez.
+\code{\link[=get_sie_series_multiple]{get_sie_series_multiple()}} para consultar varias series a la vez.
 }
