@@ -30,9 +30,11 @@ Imports:
     tibble,
     dplyr,
     purrr,
-    stringr
+    stringr,
+    stringi
 Suggests:
-    testthat (>= 3.0.0),
+    testthat (>= 3.2.0),
+    withr,
     knitr,
     rmarkdown
 Config/testthat/edition: 3

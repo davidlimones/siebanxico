@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.davidlimones.actualizar_catalogo_sie</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/caffeinate</string>
+        <string>-i</string>
+        <string>/bin/bash</string>
+        <string>/Users/davidlimones/Library/Mobile Documents/com~apple~CloudDocs/Repositorio Tesis/siebanxico/data-raw/scraper/run_actualizacion_catalogo.sh</string>
+    </array>
+
+    <!-- Semestral: 1 de enero y 1 de julio, 2:00 AM (solo corre si la Mac está encendida). -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Month</key><integer>1</integer>
+            <key>Day</key><integer>1</integer>
+            <key>Hour</key><integer>2</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+        <dict>
+            <key>Month</key><integer>7</integer>
+            <key>Day</key><integer>1</integer>
+            <key>Hour</key><integer>2</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/Users/davidlimones/Documents/siebanxico_scraper/logs/launchd_stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/davidlimones/Documents/siebanxico_scraper/logs/launchd_stderr.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

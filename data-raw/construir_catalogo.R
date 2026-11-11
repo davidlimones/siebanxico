@@ -1,95 +1,71 @@
 # =============================================================================
 # construir_catalogo.R
 #
-# Lee el CSV con el catálogo scrapeado del SIE, lo limpia y lo guarda como
-# datos internos del paquete (R/sysdata.rda).
+# Lee el catálogo de series del SIE ya limpio (generado por el scraper de
+# Python en el repo `siebanxico_scraper`: scrape_catalogo_estructuras.py ->
+# scrape_series_por_estructura.py -> nose.py) y lo guarda como datos internos
+# del paquete (R/sysdata.rda).
+#
+# A partir de esta versión, el catálogo llega como Parquet, ya con:
+#   - fecha_inicio / fecha_fin como fechas reales (Date), no texto con
+#     formatos distintos según periodicidad
+#   - sector real de Banxico (ya no un alias de titulo_estructura)
+#   - deduplicado y sin las series que no tienen ningún dato publicado en
+#     el SIE (ver NEWS.md)
+# así que este script YA NO reimplementa el parseo de fechas ni la limpieza
+# de texto -- solo adapta nombres de columna y arma titulo_completo.
 #
 # Cómo usarlo:
-#   1. Coloca el CSV en data-raw/ (o ajusta la ruta abajo)
+#   1. Copia catalogo_series_sie_final.parquet (de siebanxico_scraper/) a
+#      data-raw/ (o ajusta la ruta abajo)
 #   2. Abre el proyecto en RStudio
 #   3. Ejecuta este script completo: source("data-raw/construir_catalogo.R")
 #   4. Confirma que R/sysdata.rda se actualizó
 #   5. NO hagas commit de R/sysdata.rda (está en .gitignore)
+#
+# Requiere el paquete 'arrow' instalado (solo para este script de
+# construcción -- no es dependencia del paquete instalado, no hace falta
+# declararlo en DESCRIPTION).
 # =============================================================================
 
-library(readr)
+library(arrow)
 library(dplyr)
 library(stringr)
 
-# ── 1. Leer el CSV -----------------------------------------------------------
+# ── 1. Leer el Parquet -------------------------------------------------------
 
-ruta_csv <- "data-raw/catalogo_series_sie.csv"   # ajusta si tu archivo está en otro lado
+ruta_parquet <- "data-raw/catalogo_series_sie_final.parquet"
 
-if (!file.exists(ruta_csv)) {
+if (!file.exists(ruta_parquet)) {
   stop(
-    "No se encontró el CSV en '", ruta_csv, "'.\n",
-    "Coloca el archivo ahí o ajusta la variable 'ruta_csv'."
+    "No se encontró el Parquet en '", ruta_parquet, "'.\n",
+    "Cópialo desde siebanxico_scraper/catalogo_series_sie_final.parquet, ",
+    "o ajusta la variable 'ruta_parquet'."
   )
 }
 
-message("Leyendo ", ruta_csv, " ...")
-raw <- read_csv(
-  ruta_csv,
-  col_types = cols(.default = col_character()),
-  show_col_types = FALSE
-)
+message("Leyendo ", ruta_parquet, " ...")
+raw <- arrow::read_parquet(ruta_parquet) %>%
+  mutate(across(where(is.factor), as.character))   # columnas category -> character
 message("  Filas leídas: ", nrow(raw))
 
 
-# ── 2. Limpiar -----------------------------------------------------------
-
-limpiar <- function(x) str_trim(str_remove(x, "\\.\\s*$"))
-
-# El SIE usa tres formatos de fecha según la periodicidad de la serie:
-#   1. "02/01/1996"     → series diarias        → primer día exacto
-#   2. "Ene 1977"       → series mensuales      → primer día del mes
-#   3. "Ene-Mar 2000"   → series trimestrales   → primer día del trimestre
-parsear_fecha_sie <- function(x) {
-  meses <- c(Ene=1, Feb=2, Mar=3, Abr=4, May=5, Jun=6,
-             Jul=7, Ago=8, Sep=9, Oct=10, Nov=11, Dic=12)
-
-  resultado <- as.Date(rep(NA, length(x)))
-
-  # Formato 1: DD/MM/YYYY
-  mask1 <- str_detect(x, "^\\d{1,2}/\\d{1,2}/\\d{4}$")
-  resultado[mask1] <- as.Date(x[mask1], "%d/%m/%Y")
-
-  # Formato 2: "Mes AAAA"  (ej. "Ene 1977")
-  mask2 <- str_detect(x, "^[A-Za-z]{3} \\d{4}$")
-  if (any(mask2, na.rm = TRUE)) {
-    partes  <- str_match(x[mask2], "^([A-Za-z]{3}) (\\d{4})$")
-    mes_num <- meses[partes[, 2]]
-    resultado[mask2] <- as.Date(
-      paste(partes[, 3], str_pad(mes_num, 2, pad = "0"), "01", sep = "-")
-    )
-  }
-
-  # Formato 3: "Mes-Mes AAAA"  (ej. "Ene-Mar 2000", "Oct-Dic 1979")
-  mask3 <- str_detect(x, "^[A-Za-z]{3}-[A-Za-z]{3} \\d{4}$")
-  if (any(mask3, na.rm = TRUE)) {
-    partes  <- str_match(x[mask3], "^([A-Za-z]{3})-[A-Za-z]{3} (\\d{4})$")
-    mes_num <- meses[partes[, 2]]
-    resultado[mask3] <- as.Date(
-      paste(partes[, 3], str_pad(mes_num, 2, pad = "0"), "01", sep = "-")
-    )
-  }
-
-  resultado
-}
+# ── 2. Adaptar nombres de columna y construir titulo_completo ---------------
 
 catalogo_series_sie <- raw %>%
-  rename(titulo_estructura = estructura) %>%
+  rename(
+    titulo_estructura = estructura,
+    frecuencia         = periodicidad
+  ) %>%
   mutate(
-    across(everything(), limpiar),                        # quita puntos finales
-    fecha_inicio = parsear_fecha_sie(fecha_inicio),
-    fecha_fin    = parsear_fecha_sie(fecha_fin),
-    sector       = titulo_estructura,                     # alias para buscar_por_sector()
-    # Título completo: combina estructura + serie para series con títulos ambiguos
-    # (ej. "3.1 a 3.5" → "Inflación General — 3.1 a 3.5")
+    fecha_inicio = as.Date(fecha_inicio),
+    fecha_fin    = as.Date(fecha_fin),
+    # Título completo: combina estructura + serie para series con títulos
+    # ambiguos (ej. "3.1 a 3.5" -> "Inflación General - 3.1 a 3.5")
     titulo_completo = if_else(
       str_detect(titulo_serie, "^[0-9]") |               # empieza con número
       str_length(titulo_serie) <= 20,                    # o es muy corto
-      str_c(titulo_estructura, " — ", titulo_serie),
+      str_c(titulo_estructura, " - ", titulo_serie),
       titulo_serie                                       # si ya es descriptivo, déjalo
     )
   ) %>%
@@ -99,20 +75,29 @@ catalogo_series_sie <- raw %>%
     titulo_completo,
     titulo_estructura,
     sector,
-    frecuencia  = periodicidad,
+    frecuencia,
     tipo_cifra,
     unidad,
     fecha_inicio,
     fecha_fin
   ) %>%
-  distinct(codigo_serie, .keep_all = TRUE) %>%           # elimina duplicados por clave
-  arrange(titulo_estructura, codigo_serie)
+  arrange(titulo_estructura, codigo_serie) %>%
+  # Una fila por serie: el paquete indexa por codigo_serie (get_sie_series(),
+  # get_sie_series_multiple()) y asume una sola fila por clave. Cuando una
+  # clave aparece en más de un sector/estructura (poco común, ver NEWS.md),
+  # se queda con la primera tras el arrange() anterior -- fecha_inicio,
+  # fecha_fin, frecuencia, tipo_cifra y unidad son iguales entre esas filas
+  # duplicadas; solo sector/estructura/titulo pueden variar.
+  distinct(codigo_serie, .keep_all = TRUE)
 
 message("  Series únicas en el catálogo: ", nrow(catalogo_series_sie))
 message("  Estructuras:                  ", length(unique(catalogo_series_sie$titulo_estructura)))
+message("  Sectores:                     ", length(unique(catalogo_series_sie$sector)))
 message("  Rango de fechas inicio:       ",
-        format(min(catalogo_series_sie$fecha_inicio, na.rm = TRUE)), " — ",
+        format(min(catalogo_series_sie$fecha_inicio, na.rm = TRUE)), " - ",
         format(max(catalogo_series_sie$fecha_inicio, na.rm = TRUE)))
+message("  Series sin fecha_inicio/fecha_fin: ",
+        sum(is.na(catalogo_series_sie$fecha_inicio) | is.na(catalogo_series_sie$fecha_fin)))
 
 
 # ── 3. Guardar como datos internos del paquete --------------------------------

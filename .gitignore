@@ -10,6 +10,7 @@ R/sysdata.rda
 
 # Catálogo scrapeado (datos privados — no distribuir)
 data-raw/catalogo_series_sie.csv
+data-raw/catalogo_series_sie_final.parquet
 data-raw/progreso/
 
 # Scripts de prueba local (pueden contener tokens)
@@ -27,3 +28,8 @@ prueba_manual.R
 # Archivos de sistema Windows
 Thumbs.db
 Desktop.ini
+
+# Datos de trabajo del scraper (si se corre desde data-raw/scraper)
+data-raw/scraper/*.csv
+data-raw/scraper/*.parquet
+data-raw/scraper/logs/
